@@ -1,4 +1,6 @@
 
 Programming For Games (CSC3224)/.vscode/settings.json
-Programming For Games (CSC3224)/.vscode/settings.json
-Programming For Games (CSC3224)/Library/Artifacts/01/010140116509b1402545bf535eae4bc5
+Programming For Games (CSC3224)/Library/
+*.log
+Programming For Games (CSC3224)/Temp/
+*.cache
