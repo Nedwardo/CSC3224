@@ -6,14 +6,17 @@ using UnityEngine;
 public class PlayerHealth : Health
 {
     [SerializeField] private Text healthUI;
+    public bool godMode;
 
     public override void Start(){
         currentHealth = maxHealth;
         healthDisplayUpdate();
     }
     public override void takeDamage(int damage){
-        currentHealth -= damage;
-        healthDisplayUpdate();
+        if (!godMode){
+            currentHealth -= damage;
+            healthDisplayUpdate();
+        }
     }
     public override void restoreHealth(int restoredHealth){
         currentHealth += restoredHealth;

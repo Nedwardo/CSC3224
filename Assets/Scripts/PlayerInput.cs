@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerInput : MonoBehaviour
 {
     public float runSpeed = 40f;
     public float jumpForce = 400f;
@@ -19,10 +19,14 @@ public class PlayerMovement : MonoBehaviour
     private bool facingRight = true;  // For determining which way the player is currently facing.
     private Vector3 playerVelocity = Vector3.zero;
     private Gun gun;
+    private PlayerHealth health;
     private Camera mainCamera;
+    private bool cheats;
 
     void Start(){
+        cheats = false;
         gun = GetComponent<Gun>();
+        health = GetComponent<PlayerHealth>();
         mainCamera = GameObject.Find("MainCamera").GetComponent<Camera>();
     }
     void Update()
@@ -35,6 +39,22 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             gun.fire(mainCamera.ScreenToWorldPoint(Input.mousePosition));
+        }
+        if (Input.GetKeyDown("c")){
+            Debug.Log("Cheats Active");
+            cheats = true;
+        }
+        if (Input.GetKeyDown("z") && cheats){
+            Debug.Log("God mode toggled");
+            health.godMode = !health.godMode;
+        }
+        if (Input.GetKeyDown("x") && cheats){
+            Debug.Log("Infinite fire rate");
+            gun.durationToFireS = 0.0f;
+        }
+        if (Input.GetKeyDown("\\") && cheats){
+            Debug.Log("Double speed");
+            runSpeed  *= 2;
         }
 
     }

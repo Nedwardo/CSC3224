@@ -7,11 +7,13 @@ public class Bullet : MonoBehaviour
     private int damage;
     private LayerMask targetLayer;
     private LayerMask groundLayer;
+    private LayerMask boundingBoxLayer;
 
-    public void setValues(int damage, LayerMask targetLayer, LayerMask groundLayer){
+    public void setValues(int damage, LayerMask targetLayer, LayerMask groundLayer, LayerMask boundingBoxLayer){
         this.damage = damage;
         this.targetLayer = targetLayer;
         this.groundLayer = groundLayer;
+        this.boundingBoxLayer = boundingBoxLayer;
 
     }
     private void OnTriggerEnter2D (Collider2D other){
@@ -24,6 +26,13 @@ public class Bullet : MonoBehaviour
             Destroy(gameObject);
         }
         else if(1 << other.gameObject.layer == groundLayer.value){
+            Destroy(gameObject);
+        }
+        
+    }
+
+    private void OnTriggerExit2D (Collider2D other){
+        if(1 << other.gameObject.layer == boundingBoxLayer.value){
             Destroy(gameObject);
         }
         

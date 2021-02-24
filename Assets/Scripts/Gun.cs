@@ -9,23 +9,19 @@ public class Gun : MonoBehaviour
     public float durationToFireS;
     [SerializeField] private LayerMask targetLayer;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask boundingBoxLayer;
     [SerializeField] private GameObject bulletPrefab;
     private float timeAtLastFire;
     private float currentTime;
 
-    public void setValues(int damage,float durationToFireS, LayerMask targetLayer, LayerMask groundLayer, GameObject bulletPrefab, float bulletSpeed){
-        this.damage = damage;
-        this.durationToFireS = durationToFireS;
-        this.targetLayer = targetLayer;
-        this.groundLayer = groundLayer;
-        this.bulletPrefab = bulletPrefab;
-        this.bulletSpeed = bulletSpeed;
+    void Start(){
+        timeAtLastFire = -durationToFireS;
     }
     public void fire(Vector2 target){
         currentTime = Time.time; 
         if(currentTime - timeAtLastFire > durationToFireS){
             GameObject bulletInstance = Instantiate(bulletPrefab, GetComponent<Transform>().position, Quaternion.identity) as GameObject;
-            bulletInstance.GetComponent<Bullet>().setValues(damage, targetLayer, groundLayer);
+            bulletInstance.GetComponent<Bullet>().setValues(damage, targetLayer, groundLayer, boundingBoxLayer);
             bulletInstance.GetComponent<Rigidbody2D>().velocity = bulletSpeed * (Vector2) Vector3.Normalize(target-(Vector2) GetComponent<Transform>().position);  
             timeAtLastFire = currentTime;
         }

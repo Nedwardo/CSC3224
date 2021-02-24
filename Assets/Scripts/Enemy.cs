@@ -15,11 +15,15 @@ public class Enemy : MonoBehaviour
     }
     void Update()
     {
-        // Need to check top and bottom
-        if(Physics2D.Linecast(GetComponent<Transform>().position, player.position, groundLayer).collider == null){
+        // if(onScreen){
+        //     Debug.Log("On screen with Boxes");
+        // }
+        // else{
+        //     Debug.Log("Off screen with Boxes");
+        // }
+        if(Physics2D.Linecast(GetComponent<Transform>().position, player.position, groundLayer).collider == null){// Need to check top and bottom
             gun.fire((Vector2) player.position);
-            
         }
-        
+              
     }
 }

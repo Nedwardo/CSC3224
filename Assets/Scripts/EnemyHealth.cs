@@ -10,7 +10,6 @@ public class EnemyHealth : Health
 
     public override void Start(){
         currentHealth = maxHealth;
-        Debug.Log("initialHealthBarScale = " + initialHealthBarScale);
         initialHealthBarScale = healthBar.transform.localScale.x;
         healthBar.GetComponent<SpriteRenderer>().enabled = false;
     }
