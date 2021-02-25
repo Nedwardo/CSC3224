@@ -43,7 +43,7 @@ public class PlayerInput : MonoBehaviour
         if (Input.GetKeyDown("c")){
             Debug.Log("Cheats Active");
             cheats = true;
-            gameObject.GetComponent<Score>().scoringOff();
+            GameObject.Find("Score").GetComponent<Score>().scoringOff();
         }
         if (Input.GetKeyDown("z") && cheats){
             Debug.Log("God mode toggled");
