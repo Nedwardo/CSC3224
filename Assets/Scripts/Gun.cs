@@ -14,7 +14,7 @@ public class Gun : MonoBehaviour
     private float timeAtLastFire;
     private float currentTime;
 
-    void Start(){
+    void Awake(){
         timeAtLastFire = -durationToFireS;
     }
     public void fire(Vector2 target){
@@ -25,6 +25,10 @@ public class Gun : MonoBehaviour
             bulletInstance.GetComponent<Rigidbody2D>().velocity = bulletSpeed * (Vector2) Vector3.Normalize(target-(Vector2) GetComponent<Transform>().position);  
             timeAtLastFire = currentTime;
         }
+    }
+
+    public void setGroundLayer(LayerMask groundLayer){
+        this.groundLayer = groundLayer;
     }
 }
 

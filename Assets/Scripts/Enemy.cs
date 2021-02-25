@@ -4,14 +4,18 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    public Transform player;
+    private Transform playerTransform;
+    [SerializeField] private int damageOnCollision;
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private Health health;
-    private Gun gun;
+    [SerializeField] private EnemyHealth health;
 
-    // Update is called once per frame
-    void Start(){
+    [SerializeField] private GameObject dropOnDeathPrefab;
+    private Gun gun;
+    void Awake(){
+        playerTransform = GameObject.Find("Player").GetComponent<Transform>();
+        health.setDrop(dropOnDeathPrefab);
         gun = GetComponent<Gun>(); 
+        gun.setGroundLayer(groundLayer);
     }
     void Update()
     {
@@ -21,9 +25,15 @@ public class Enemy : MonoBehaviour
         // else{
         //     Debug.Log("Off screen with Boxes");
         // }
-        if(Physics2D.Linecast(GetComponent<Transform>().position, player.position, groundLayer).collider == null){// Need to check top and bottom
-            gun.fire((Vector2) player.position);
+        if(Physics2D.Linecast(GetComponent<Transform>().position, playerTransform.position, groundLayer).collider == null){// Need to check top and bottom
+            gun.fire((Vector2) playerTransform.position);
         }
               
+    }
+
+    void OnCollisionEnter2D (Collision2D other){
+        if (other.gameObject.CompareTag("Player")){
+            other.gameObject.GetComponent<Health>().takeDamage(damageOnCollision);
+        }
     }
 }

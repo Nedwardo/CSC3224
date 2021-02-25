@@ -6,7 +6,7 @@ public abstract class Health : MonoBehaviour
 {
     public int currentHealth;
     public int maxHealth;
-    public virtual void Start(){
+    public virtual void Awake(){
         currentHealth = maxHealth;
     }
     public abstract void takeDamage(int damage);
