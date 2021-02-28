@@ -10,7 +10,6 @@ public class PlayerInput : MonoBehaviour
     [SerializeField] private bool airControl = true;
     [SerializeField] private LayerMask groundLayer;                          // A mask determining what is ground to the character
     [SerializeField] private float distanceToGround = 0.1f;
-    [SerializeField] private float tolaranceOnGroundEdge = 0.05f;
     [SerializeField] private float SlopeCheckDistance;
     [SerializeField] private float maxSlopeAngle;
     [SerializeField] private PhysicsMaterial2D noFriction;
@@ -74,7 +73,14 @@ public class PlayerInput : MonoBehaviour
 
     private void FixedUpdate()
     {
-        grounded = (Physics2D.BoxCast(playerCollider.bounds.center,playerCollider.bounds.size - new Vector3(tolaranceOnGroundEdge,0,0), 0f,Vector2.down, distanceToGround, groundLayer).collider != null);
+        grounded = (Physics2D.BoxCast(
+            playerCollider.bounds.center,
+            playerCollider.bounds.size - new Vector3(distanceToGround,0,0), 
+            0f,
+            Vector2.down,
+             distanceToGround, 
+             groundLayer)
+             .collider != null);
         SlopeCheck();
         // Debug.Log("Test 0:" + "grounded: "+ grounded + ",horizontalMove * Time.fixedDeltaTime: " + horizontalMove * Time.fixedDeltaTime + ",Jump: " + jump);
         move(horizontalMove * Time.fixedDeltaTime, jump);

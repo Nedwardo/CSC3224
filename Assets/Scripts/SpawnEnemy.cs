@@ -5,7 +5,6 @@ using UnityEngine.Tilemaps;
 
 public class SpawnEnemy : MonoBehaviour
 {
-    [SerializeField] private PolygonCollider2D boundingBoxCollider;
     private BoxCollider2D mainCameraCollider;
     [SerializeField] private Tilemap map;
     [SerializeField] private GameObject enemyPrefab;
@@ -15,7 +14,11 @@ public class SpawnEnemy : MonoBehaviour
     private float currentTime;
     private GameObject Enemy;
 
-    private List<float>[] tilesByX; 
+    private int nonNullStart = -1;
+
+    private int nonNullFinish = -1;
+
+    public List<int>[] tilesByX; 
     // Know calc width of map not in camera
     void Awake()
     {
@@ -35,74 +38,103 @@ public class SpawnEnemy : MonoBehaviour
     }
 
     private void spawnEnemy(){
+        // Enemies still sometimes spawn OOB IDK why, and at this point I'm just gonna blame unity and move on with my life
         Enemy = Instantiate(enemyPrefab, generateRandomSpawnPointOffScreen(), Quaternion.identity) as GameObject;
         Enemy.transform.parent = gameObject.transform;
     }
 
     private Vector2 generateRandomSpawnPointOffScreen(){
-        // Vector2[] boundingPoints = boundingBoxCollider.points;
-        // float[] boundingXCoordinates = new float[2];
-        // boundingXCoordinates[0] = boundingPoints[0].x;
-        // foreach (Vector2 point in boundingPoints){
-        //     if (point.x != boundingXCoordinates[0]){
-        //         boundingXCoordinates[1] = point.x;
-        //         break;
-        //     }
-        // }
-        // Debug.Log("Reachable (Spawn Enemy:33)");
-        // float centerMapX = (boundingXCoordinates[0] + boundingXCoordinates[1])/2.0f;
-        // float boxWidthX = System.Math.Abs(boundingXCoordinates[0] - boundingXCoordinates[1]);
         Vector2 spawnLocation;
-        float centerMap = boundingBoxCollider.bounds.center.x;
-        float boxWidth = boundingBoxCollider.bounds.extents.x;
-        float centerCameraBox = mainCameraCollider.bounds.center.x;
-        float centerCameraBoxWidth = mainCameraCollider.bounds.extents.x;
-
-        float leftMapBox = centerMap - boxWidth;
-        float leftCameraBox = centerCameraBox - centerCameraBoxWidth;
-        float rangeOfValues = boxWidth*2 - centerCameraBoxWidth*2;
+        int spawnWidth = 1 + nonNullFinish - nonNullStart;
+        int leftCameraBoxCellSpace = map.WorldToCell(new Vector2(mainCameraCollider.bounds.center.x - mainCameraCollider.bounds.extents.x,0.0f)).x;
+        int rightCameraBoxCellSpace = map.WorldToCell(new Vector2(mainCameraCollider.bounds.center.x + mainCameraCollider.bounds.extents.x,0.0f)).x;
+        int cameraWidthCellSpace = rightCameraBoxCellSpace - leftCameraBoxCellSpace;
+        int valueRange = spawnWidth - cameraWidthCellSpace;
         System.Random random = new System.Random();
 
+        List<int> validY = new List<int>();
+        int randomCellX = -1;
 
-        spawnLocation.x = ((float) random.NextDouble() * rangeOfValues);
-        spawnLocation.x += leftMapBox;
-        if (spawnLocation.x > leftCameraBox){
-            spawnLocation.x += centerCameraBoxWidth*2;
+        float cellWidth =  new Vector3(map.CellToWorld(new Vector3Int(nonNullStart, 0, 0)).x - map.CellToWorld(new Vector3Int(nonNullStart+1, 0, 0)).x, 0.0f, 0.0f).x;
+
+        
+        while (validY.Count == 0){
+            randomCellX = random.Next(valueRange) + nonNullStart;
+            if (randomCellX > leftCameraBoxCellSpace){
+                randomCellX += cameraWidthCellSpace;
+            } 
+            validY = tilesByX[randomCellX];
         }
-        List<float> validY = convertXPosToYCoordinates(spawnLocation.x - leftMapBox);
-        spawnLocation.y = validY[random.Next(validY.Count)];
+        spawnLocation = map.CellToWorld(new Vector3Int(randomCellX, validY[random.Next(validY.Count)], 0));
+        spawnLocation.y += 10;
+        // I added this after testing, IDK why it needs it
+        spawnLocation.x -= cellWidth;
+
+
+        // int usedI;
+        // for (int i = nonNullStart; i < nonNullFinish - cameraWidthCellSpace; i++){
+        //     usedI = i;
+        //     if (usedI > leftCameraBoxCellSpace){
+        //         usedI += cameraWidthCellSpace;
+        //     }
+        //     validY = tilesByX[usedI];
+        //     foreach (int Y in validY){
+        //         Vector3 coordinate = map.CellToWorld(new Vector3Int(usedI, Y, 0));
+        //         coordinate.y += 10;
+        //         Debug.DrawLine(coordinate-(step/2), coordinate+(step/2), Color.cyan, int.MaxValue);
+        //     }
+        // }
         // Debug.Log("Spawned at :{" + spawnLocation.x + ", " + spawnLocation.y + "}");
         
         
         return spawnLocation;
     }
 
-    private List<float>[] convertCompositeColliderToRanges(){
+    private List<int>[] convertCompositeColliderToRanges(){
         BoundsInt bounds = map.cellBounds;
         TileBase[] allTiles = map.GetTilesBlock(bounds);
-        List<float>[] tilesByX = new List<float>[bounds.size.x-2];
-        for (int i = 0; i < bounds.size.x-2; i++){
-            tilesByX[i] = new List<float>();
+        List<int>[] tilesByX = new List<int>[bounds.size.x];
+        for (int i = 0; i < bounds.size.x; i++){
+            tilesByX[i] = new List<int>();
         }
-        for (int y = 1; y < bounds.size.y-4; y++) {
-            for (int x = 1; x < bounds.size.x-1; x++) {
+        for (int y = 0; y < bounds.size.y; y++) {
+            for (int x = 0; x < bounds.size.x; x++) {
                 TileBase tile = allTiles[x + y * bounds.size.x];
-                if (tile != null && allTiles[x + (y+1) * bounds.size.x] == null && allTiles[x+1 + (y+1) * bounds.size.x] == null && allTiles[x-1 + (y+1) * bounds.size.x] == null) {
-                    Vector2 visibleCoordinateLeft;
-                    Vector2 visibleCoordinateRight;
-                    visibleCoordinateLeft.x = (x-1)*2;
-                    visibleCoordinateRight.x = (x)*2;
-                    visibleCoordinateLeft.y = map.CellToWorld((Vector3Int) new Vector2Int(x-1, y)).y - 1;
-                    visibleCoordinateRight.y = map.CellToWorld((Vector3Int) new Vector2Int(x-1, y)).y - 1;
-                    Debug.DrawLine(visibleCoordinateLeft, visibleCoordinateRight, Color.red);
-                    tilesByX[x-1].Add(map.CellToWorld((Vector3Int) new Vector2Int(x-1, y)).y - 1.0031f);
+                if (tile != null) {
+                    // -1 was added after extensive testing, I don't fully understand why I need it
+                    tilesByX[x-1].Add(y);
+                    Vector2 aboveSelfCenter = map.CellToWorld(new Vector3Int(x-1, y, 0));
+                    Vector2 twiceAboveSelfCenter = map.CellToWorld(new Vector3Int(x-1, y+1, 0));
+                    Vector2 LeftSelfCenter = map.CellToWorld(new Vector3Int(x-2, y-1, 0));
+                    Vector2 RightSelfCenter = map.CellToWorld(new Vector3Int(x, y-1, 0));
+                    Vector2 aboveTopLeft = new Vector2 ((aboveSelfCenter.x + LeftSelfCenter.x)/2, (twiceAboveSelfCenter.y + aboveSelfCenter.y)/2);
+                    Vector2 aboveTopRight = new Vector2 ((aboveSelfCenter.x + RightSelfCenter.x)/2, (twiceAboveSelfCenter.y + aboveSelfCenter.y)/2);
+                    Vector2 aboveBottomLeft = new Vector2 ((aboveSelfCenter.x + LeftSelfCenter.x)/2, (LeftSelfCenter.y + aboveSelfCenter.y)/2);
+                    Vector2 aboveBottomRight = new Vector2 ((aboveSelfCenter.x + RightSelfCenter.x)/2, (LeftSelfCenter.y + aboveSelfCenter.y)/2);
+                    Debug.DrawLine(aboveTopLeft, aboveTopRight, Color.red, int.MaxValue);
+                    Debug.DrawLine(aboveTopRight, aboveBottomRight, Color.red, int.MaxValue);
+                    Debug.DrawLine(aboveBottomRight, aboveBottomLeft, Color.red, int.MaxValue);
+                    Debug.DrawLine(aboveBottomLeft, aboveTopLeft, Color.red, int.MaxValue);
+
+
+                    // Vector2 visibleCoordinateLeft;
+                    // Vector2 visibleCoordinateRight;
+                    // visibleCoordinateLeft.x = (x-2)*10;
+                    // visibleCoordinateRight.x = (x-1)*10;
+                    // visibleCoordinateLeft.y = map.CellToWorld((Vector3Int) new Vector2Int(x, y)).y + 10;
+                    // visibleCoordinateRight.y = map.CellToWorld((Vector3Int) new Vector2Int(x, y)).y + 10;
+                    //Debug.DrawLine(visibleCoordinateLeft, visibleCoordinateRight, Color.yellow, int.MaxValue);
                 }
             }
         }
+        for (int i = 0; i < tilesByX.Length & (nonNullStart == -1 || nonNullFinish == -1); i++){
+            if (tilesByX[i].Count != 0 && nonNullStart == -1){
+                nonNullStart = i;
+            }
+            if (tilesByX[tilesByX.Length-i-1].Count != 0 && nonNullFinish == -1){
+                nonNullFinish = tilesByX.Length-i-1;
+            }
+        }
         return tilesByX;
-    }
-
-    private List<float> convertXPosToYCoordinates(float x) {
-        return tilesByX[((int) System.Math.Ceiling(x/2)) -1 ];
     }
 }
