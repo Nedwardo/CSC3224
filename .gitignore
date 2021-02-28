@@ -3,3 +3,4 @@ Library/
 *.log
 Temp/
 *.cache
+Assembly-CSharp.csproj

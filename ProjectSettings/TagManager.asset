@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Platform
   layers:
   - Default
   - TransparentFX
@@ -17,15 +18,15 @@ TagManager:
   - 
   - 
   - Ground
-  - 
+  - Door
   - Player
   - 
-  - Enemy
+  - UpEnemy
+  - DownEnemy
   - 
-  - 
-  - 
-  - 
-  - 
+  - Platform
+  - Inactive Platform
+  - OpenDoor
   - 
   - 
   - 

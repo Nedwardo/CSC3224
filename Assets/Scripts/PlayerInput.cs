@@ -1,33 +1,45 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInput : MonoBehaviour
 {
-    public float runSpeed = 40f;
-    public float jumpForce = 400f;
-    public float movementSmoothing = .05f;
-    public bool airControl = true;
-    float horizontalMove = 0f;
+    [SerializeField] private float runSpeed = 40f;
+    [SerializeField] private float jumpForce = 400f;
+    [SerializeField] private float movementSmoothing = .05f;
+    [SerializeField] private bool airControl = true;
     [SerializeField] private LayerMask groundLayer;                          // A mask determining what is ground to the character
-    public Rigidbody2D playerBody;
-    public BoxCollider2D playerCollider;
-    public float distanceToGround = 0.1f;
-    public float tolaranceOnGroundEdge = 0.05f;
-    private bool grounded;            // Whether or not the player is grounded.
-    bool jump = false;
-    private bool facingRight = true;  // For determining which way the player is currently facing.
+    [SerializeField] private float distanceToGround = 0.1f;
+    [SerializeField] private float tolaranceOnGroundEdge = 0.05f;
+    [SerializeField] private float SlopeCheckDistance;
+    [SerializeField] private float maxSlopeAngle;
+    [SerializeField] private PhysicsMaterial2D noFriction;
+    [SerializeField] private PhysicsMaterial2D fullFriction;
+
     private Vector3 playerVelocity = Vector3.zero;
+    private float horizontalMove = 0f;
+    private bool facingRight = true;  // For determining which way the player is currently facing.
+    private bool grounded;            // Whether or not the player is grounded.
+    private bool jump = false;
+    private Vector2 slopeNormalPerpendicular;
+    private float slopeDownAngleOld;
+    private float slopeSideAngle;
+    private bool onSlope = false;
+    private bool cheats = false;
+
+
+    private Rigidbody2D playerBody;
+    private BoxCollider2D playerCollider;
     private Gun gun;
     private PlayerHealth health;
     private Camera mainCamera;
-    private bool cheats;
 
     void Start(){
-        cheats = false;
         gun = GetComponent<Gun>();
         health = GetComponent<PlayerHealth>();
         mainCamera = GameObject.Find("MainCamera").GetComponent<Camera>();
+        playerBody = GetComponent<Rigidbody2D>();
+        playerCollider = GetComponent<BoxCollider2D>();
     }
     void Update()
     {
@@ -62,37 +74,30 @@ public class PlayerInput : MonoBehaviour
 
     private void FixedUpdate()
     {
-        bool wasGrounded = grounded;
-        grounded = false;
-        Collider2D colliderDebug = Physics2D.BoxCast(playerCollider.bounds.center,playerCollider.bounds.size - new Vector3(tolaranceOnGroundEdge,0,0), 0f,Vector2.down, distanceToGround, groundLayer).collider;
-        // Color rayColor;
-        // if (colliderDebug != null){
-        //     rayColor = Color.green;
-        // }
-        // else{
-        //     rayColor = Color.red;
-        // }
-        // Debug.DrawRay(playerCollider.bounds.center + new Vector3(playerCollider.bounds.extents.x, 0), Vector2.down * (playerCollider.bounds.extents.y + distanceToGround), rayColor);
-        // Debug.DrawRay(playerCollider.bounds.center - new Vector3(playerCollider.bounds.extents.x, 0), Vector2.down * (playerCollider.bounds.extents.y + distanceToGround), rayColor);
-        // Debug.DrawRay(playerCollider.bounds.center - new Vector3(0, playerCollider.bounds.extents.y), Vector2.right * (playerCollider.bounds.extents.x), rayColor);
-
-        if (colliderDebug != null)
-        {
-            grounded = true;
-        }
+        grounded = (Physics2D.BoxCast(playerCollider.bounds.center,playerCollider.bounds.size - new Vector3(tolaranceOnGroundEdge,0,0), 0f,Vector2.down, distanceToGround, groundLayer).collider != null);
+        SlopeCheck();
+        // Debug.Log("Test 0:" + "grounded: "+ grounded + ",horizontalMove * Time.fixedDeltaTime: " + horizontalMove * Time.fixedDeltaTime + ",Jump: " + jump);
         move(horizontalMove * Time.fixedDeltaTime, jump);
         jump = false;
     }
 
         public void move(float move, bool jump)
     {
+         playerBody.sharedMaterial = noFriction;
 
         //only control the player if grounded or airControl is turned on
         if (grounded || airControl)
         {
-            // Move the character by finding the target velocity
-            Vector3 targetVelocity = new Vector2(move * 10f, playerBody.velocity.y);
-            // And then smoothing it out and applying it to the character
+            Vector3 targetVelocity;
+            if (!onSlope){ 
+                targetVelocity = new Vector2(move * 10f, playerBody.velocity.y);
+            }
+            else{
+                if (move == 0.0f){
+                    playerBody.sharedMaterial = fullFriction;
+                }
+                targetVelocity = new Vector2(move * 10f, -move * 10f * slopeNormalPerpendicular.y);
+            }
             playerBody.velocity = Vector3.SmoothDamp(playerBody.velocity, targetVelocity, ref playerVelocity, movementSmoothing);
 
             // If the input is moving the player right and the player is facing left...
@@ -116,6 +121,51 @@ public class PlayerInput : MonoBehaviour
             playerBody.AddForce(new Vector2(0f, jumpForce));
         }
     }
+
+
+    private void SlopeCheck(){
+        //Broken for both player and enemy
+        Vector2 checkPostition = (Vector2) transform.position- new Vector2(0.0f,  playerCollider.size.y*transform.localScale.y*0.5f);
+        SlopeCheckHorizontal(checkPostition);
+        SlopeCheckVertical(checkPostition);
+    }
+
+    private void SlopeCheckHorizontal(Vector2 checkPostition){
+        RaycastHit2D slopeHitFront = Physics2D.Raycast(checkPostition, transform.right, SlopeCheckDistance, groundLayer);
+        RaycastHit2D slopeHitBack = Physics2D.Raycast(checkPostition, -transform.right, SlopeCheckDistance, groundLayer);
+        
+        if(slopeHitFront){
+            onSlope = true;
+            slopeSideAngle = Vector2.Angle(slopeHitFront.normal, Vector2.up);
+        }
+        else if (slopeHitBack){
+            onSlope = true;
+            slopeSideAngle = Vector2.Angle(slopeHitBack.normal, Vector2.up);
+        }
+        else{
+            onSlope = false;
+            slopeSideAngle = 0.0f;
+        }
+
+    }
+
+    private void SlopeCheckVertical(Vector2 checkPostition){
+        RaycastHit2D hit = Physics2D.Raycast(checkPostition, Vector2.down, SlopeCheckDistance, groundLayer);
+        float slopeDownAngle = 90;
+        if(hit){
+            slopeNormalPerpendicular = Vector2.Perpendicular(hit.normal).normalized;
+            slopeDownAngle = Vector2.Angle(hit.normal, Vector2.up);
+            if(slopeDownAngle != slopeDownAngleOld){
+                onSlope = true;
+            }
+            slopeDownAngleOld = slopeDownAngle;
+        }
+        if (slopeDownAngle > maxSlopeAngle || slopeSideAngle > maxSlopeAngle)
+        {
+            onSlope = false;
+        }
+    }
+
     private void Flip()
         {
         // Switch the way the player is labelled as facing.

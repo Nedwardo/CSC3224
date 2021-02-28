@@ -112,7 +112,7 @@ Transform:
   m_GameObject: {fileID: 2523074490957188811}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -116.08185, y: -100.3844, z: 6.09375}
-  m_LocalScale: {x: 10, y: 10, z: 1}
+  m_LocalScale: {x: 100, y: 100, z: 1}
   m_Children:
   - {fileID: 2523074490190064765}
   m_Father: {fileID: 0}
@@ -209,10 +209,21 @@ MonoBehaviour:
   damageOnCollision: 1
   groundLayer:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 6144
   health: {fileID: 2523074490957188813}
   dropOnDeathPrefab: {fileID: 6893121799811595648, guid: b628ec1be75ef414d8ea396413bc020b,
     type: 3}
+  floorCount: 3
+  moveSpeed: 20
+  movementSmoothing: 0.1
+  maxSlopeAngle: 60
+  SlopeCheckDistance: 5
+  noFriction: {fileID: 6200000, guid: 231c977a3f561e94486c2937551653a6, type: 2}
+  fullFriction: {fileID: 6200000, guid: 9113ec88a2ccdd843bd9931cb4940275, type: 2}
+  floors:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &2523074490957188815
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,14 +237,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
-  bulletSpeed: 10
+  bulletSpeed: 100
   durationToFireS: 1
   targetLayer:
     serializedVersion: 2
     m_Bits: 8192
   groundLayer:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 6144
   boundingBoxLayer:
     serializedVersion: 2
     m_Bits: 268435456
@@ -274,4 +285,4 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 5
+  m_Constraints: 4

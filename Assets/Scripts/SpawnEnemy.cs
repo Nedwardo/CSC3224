@@ -88,13 +88,13 @@ public class SpawnEnemy : MonoBehaviour
             for (int x = 1; x < bounds.size.x-1; x++) {
                 TileBase tile = allTiles[x + y * bounds.size.x];
                 if (tile != null && allTiles[x + (y+1) * bounds.size.x] == null && allTiles[x+1 + (y+1) * bounds.size.x] == null && allTiles[x-1 + (y+1) * bounds.size.x] == null) {
-                    // Vector2 visibleCoordinateLeft;
-                    // Vector2 visibleCoordinateRight;
-                    // visibleCoordinateLeft.x = (x-1)*2;
-                    // visibleCoordinateRight.x = (x)*2;
-                    // visibleCoordinateLeft.y = map.CellToWorld((Vector3Int) new Vector2Int(x-1, y)).y - 1;
-                    // visibleCoordinateRight.y = map.CellToWorld((Vector3Int) new Vector2Int(x-1, y)).y - 1;
-                    // Debug.DrawLine(visibleCoordinateLeft, visibleCoordinateRight, Color.red);
+                    Vector2 visibleCoordinateLeft;
+                    Vector2 visibleCoordinateRight;
+                    visibleCoordinateLeft.x = (x-1)*2;
+                    visibleCoordinateRight.x = (x)*2;
+                    visibleCoordinateLeft.y = map.CellToWorld((Vector3Int) new Vector2Int(x-1, y)).y - 1;
+                    visibleCoordinateRight.y = map.CellToWorld((Vector3Int) new Vector2Int(x-1, y)).y - 1;
+                    Debug.DrawLine(visibleCoordinateLeft, visibleCoordinateRight, Color.red);
                     tilesByX[x-1].Add(map.CellToWorld((Vector3Int) new Vector2Int(x-1, y)).y - 1.0031f);
                 }
             }
