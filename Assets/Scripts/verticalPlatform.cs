@@ -37,9 +37,7 @@ public class verticalPlatform : MonoBehaviour
     } 
     
     void OnCollisionExit2D(Collision2D other){
-        Debug.Log("Collision");
         if ((other.gameObject.layer & playerLayer.value) > 0){
-            Debug.Log("Player crossed");
             for (int i = 0; i < enemyHolder.childCount; i++){
                 enemyHolder.GetChild(i).GetComponent<Enemy>().updatePathing();
             }

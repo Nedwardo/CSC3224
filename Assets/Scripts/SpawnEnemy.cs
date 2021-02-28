@@ -103,18 +103,18 @@ public class SpawnEnemy : MonoBehaviour
                 if (tile != null) {
                     // -1 was added after extensive testing, I don't fully understand why I need it
                     tilesByX[x-1].Add(y);
-                    Vector2 aboveSelfCenter = map.CellToWorld(new Vector3Int(x-1, y, 0));
-                    Vector2 twiceAboveSelfCenter = map.CellToWorld(new Vector3Int(x-1, y+1, 0));
-                    Vector2 LeftSelfCenter = map.CellToWorld(new Vector3Int(x-2, y-1, 0));
-                    Vector2 RightSelfCenter = map.CellToWorld(new Vector3Int(x, y-1, 0));
-                    Vector2 aboveTopLeft = new Vector2 ((aboveSelfCenter.x + LeftSelfCenter.x)/2, (twiceAboveSelfCenter.y + aboveSelfCenter.y)/2);
-                    Vector2 aboveTopRight = new Vector2 ((aboveSelfCenter.x + RightSelfCenter.x)/2, (twiceAboveSelfCenter.y + aboveSelfCenter.y)/2);
-                    Vector2 aboveBottomLeft = new Vector2 ((aboveSelfCenter.x + LeftSelfCenter.x)/2, (LeftSelfCenter.y + aboveSelfCenter.y)/2);
-                    Vector2 aboveBottomRight = new Vector2 ((aboveSelfCenter.x + RightSelfCenter.x)/2, (LeftSelfCenter.y + aboveSelfCenter.y)/2);
-                    Debug.DrawLine(aboveTopLeft, aboveTopRight, Color.red, int.MaxValue);
-                    Debug.DrawLine(aboveTopRight, aboveBottomRight, Color.red, int.MaxValue);
-                    Debug.DrawLine(aboveBottomRight, aboveBottomLeft, Color.red, int.MaxValue);
-                    Debug.DrawLine(aboveBottomLeft, aboveTopLeft, Color.red, int.MaxValue);
+                    // Vector2 aboveSelfCenter = map.CellToWorld(new Vector3Int(x-1, y, 0));
+                    // Vector2 twiceAboveSelfCenter = map.CellToWorld(new Vector3Int(x-1, y+1, 0));
+                    // Vector2 LeftSelfCenter = map.CellToWorld(new Vector3Int(x-2, y-1, 0));
+                    // Vector2 RightSelfCenter = map.CellToWorld(new Vector3Int(x, y-1, 0));
+                    // Vector2 aboveTopLeft = new Vector2 ((aboveSelfCenter.x + LeftSelfCenter.x)/2, (twiceAboveSelfCenter.y + aboveSelfCenter.y)/2);
+                    // Vector2 aboveTopRight = new Vector2 ((aboveSelfCenter.x + RightSelfCenter.x)/2, (twiceAboveSelfCenter.y + aboveSelfCenter.y)/2);
+                    // Vector2 aboveBottomLeft = new Vector2 ((aboveSelfCenter.x + LeftSelfCenter.x)/2, (LeftSelfCenter.y + aboveSelfCenter.y)/2);
+                    // Vector2 aboveBottomRight = new Vector2 ((aboveSelfCenter.x + RightSelfCenter.x)/2, (LeftSelfCenter.y + aboveSelfCenter.y)/2);
+                    // Debug.DrawLine(aboveTopLeft, aboveTopRight, Color.red, int.MaxValue);
+                    // Debug.DrawLine(aboveTopRight, aboveBottomRight, Color.red, int.MaxValue);
+                    // Debug.DrawLine(aboveBottomRight, aboveBottomLeft, Color.red, int.MaxValue);
+                    // Debug.DrawLine(aboveBottomLeft, aboveTopLeft, Color.red, int.MaxValue);
 
 
                     // Vector2 visibleCoordinateLeft;
