@@ -9,6 +9,7 @@ public class PlayerInput : MonoBehaviour
     [SerializeField] private float movementSmoothing = .05f;
     [SerializeField] private bool airControl = true;
     [SerializeField] private LayerMask groundLayer;                          // A mask determining what is ground to the character
+    [SerializeField] private LayerMask platformLayer;                          // A mask determining what is ground to the character
     [SerializeField] private float distanceToGround = 0.1f;
     [SerializeField] private float SlopeCheckDistance;
     [SerializeField] private float maxSlopeAngle;
@@ -73,16 +74,17 @@ public class PlayerInput : MonoBehaviour
 
     private void FixedUpdate()
     {
-        grounded = (Physics2D.BoxCast(
-            playerCollider.bounds.center,
-            playerCollider.bounds.size - new Vector3(distanceToGround,0,0), 
-            0f,
-            Vector2.down,
-             distanceToGround, 
-             groundLayer)
-             .collider != null);
+        RaycastHit2D raycastHit = Physics2D.BoxCast((Vector2) playerCollider.bounds.center, playerCollider.bounds.size, 0f, Vector2.down, distanceToGround, groundLayer | platformLayer);
+        // SHouldn't have to check if on slope, but going down slopes is being really buggy
+        grounded = (raycastHit.collider != null) || onSlope;
+        Color color = Color.red;
+        if (grounded){
+            color = Color.green;
+        }
+        Debug.DrawRay((Vector2) playerCollider.bounds.center + new Vector2(playerCollider.bounds.extents.x, 0), Vector2.down * (playerCollider.bounds.extents.y + distanceToGround), color);
+        Debug.DrawRay((Vector2) playerCollider.bounds.center - new Vector2(playerCollider.bounds.extents.x, 0), Vector2.down * (playerCollider.bounds.extents.y + distanceToGround), color);
+        Debug.DrawRay((Vector2) playerCollider.bounds.center - new Vector2(playerCollider.bounds.extents.x, playerCollider.bounds.extents.y + distanceToGround), Vector2.right * (playerCollider.bounds.extents.x*2), color);
         SlopeCheck();
-        // Debug.Log("Test 0:" + "grounded: "+ grounded + ",horizontalMove * Time.fixedDeltaTime: " + horizontalMove * Time.fixedDeltaTime + ",Jump: " + jump);
         move(horizontalMove * Time.fixedDeltaTime, jump);
         jump = false;
     }

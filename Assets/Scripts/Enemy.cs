@@ -18,6 +18,7 @@ public class Enemy : MonoBehaviour
 
     
     private Transform playerTransform; 
+    private BoxCollider2D selfCollider;
     private bool facingRight = true;
     private bool onSlope = false;
     private float slopeSideAngle;
@@ -35,6 +36,7 @@ public class Enemy : MonoBehaviour
         health.setDrop(dropOnDeathPrefab);
         gun = GetComponent<Gun>(); 
         body = GetComponent<Rigidbody2D>();
+        selfCollider = GetComponent<BoxCollider2D>();
     }
 
     void floors_init(){
@@ -45,7 +47,20 @@ public class Enemy : MonoBehaviour
     }
     void FixedUpdate()
     {
-        if(Physics2D.Linecast(GetComponent<Transform>().position, playerTransform.position, groundLayer).collider == null){// Need to check top and bottom
+        bool clear = (Physics2D.Linecast(transform.position, playerTransform.position, groundLayer).collider == null) &&
+        (Physics2D.Linecast(new Vector3(transform.position.x - selfCollider.size.x*50, transform.position.y - selfCollider.size.y*50, 0.0f), playerTransform.position, groundLayer).collider == null) &&
+        (Physics2D.Linecast(new Vector3(transform.position.x - selfCollider.size.x*50, transform.position.y + selfCollider.size.y*50, 0.0f), playerTransform.position, groundLayer).collider == null) &&
+        (Physics2D.Linecast(new Vector3(transform.position.x - selfCollider.size.x*50, transform.position.y + selfCollider.size.y*50, 0.0f), playerTransform.position, groundLayer).collider == null) &&
+        (Physics2D.Linecast(new Vector3(transform.position.x - selfCollider.size.x*50, transform.position.y + selfCollider.size.y*50, 0.0f), playerTransform.position, groundLayer).collider == null);
+        Color color = Color.red;
+        if (clear){
+            color = Color.green;
+        }
+        Debug.DrawLine(new Vector3(transform.position.x - selfCollider.size.x*50, transform.position.y - selfCollider.size.y*50, 0.0f) ,playerTransform.position, color);
+        Debug.DrawLine(new Vector3(transform.position.x - selfCollider.size.x*50, transform.position.y + selfCollider.size.y*50, 0.0f) ,playerTransform.position, color);
+        Debug.DrawLine(new Vector3(transform.position.x + selfCollider.size.x*50, transform.position.y - selfCollider.size.y*50, 0.0f) ,playerTransform.position, color);
+        Debug.DrawLine(new Vector3(transform.position.x + selfCollider.size.x*50, transform.position.y + selfCollider.size.y*50, 0.0f) ,playerTransform.position, color);
+        if(clear){// Need to check top and bottom
             body.sharedMaterial = fullFriction;
             gun.fire((Vector2) playerTransform.position);
         }

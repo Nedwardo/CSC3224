@@ -214,7 +214,7 @@ MonoBehaviour:
   dropOnDeathPrefab: {fileID: 6893121799811595648, guid: b628ec1be75ef414d8ea396413bc020b,
     type: 3}
   floorCount: 3
-  moveSpeed: 20
+  moveSpeed: 10
   movementSmoothing: 0.1
   maxSlopeAngle: 60
   SlopeCheckDistance: 5
