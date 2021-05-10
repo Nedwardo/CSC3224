@@ -47,6 +47,9 @@ public class Enemy : MonoBehaviour
     }
     void FixedUpdate()
     {
+        if (transform.position.y < 100){
+            Destroy(gameObject);
+        }
         bool clear = (Physics2D.Linecast(transform.position, playerTransform.position, groundLayer).collider == null) &&
         (Physics2D.Linecast(new Vector3(transform.position.x - selfCollider.size.x*50, transform.position.y - selfCollider.size.y*50, 0.0f), playerTransform.position, groundLayer).collider == null) &&
         (Physics2D.Linecast(new Vector3(transform.position.x - selfCollider.size.x*50, transform.position.y + selfCollider.size.y*50, 0.0f), playerTransform.position, groundLayer).collider == null) &&

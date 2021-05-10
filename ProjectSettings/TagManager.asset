@@ -31,7 +31,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - killPlane
   - 
   - 
   - BoundingBox
@@ -41,4 +41,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: background
+    uniqueID: 11609395
     locked: 0

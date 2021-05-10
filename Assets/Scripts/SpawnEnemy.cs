@@ -8,37 +8,56 @@ public class SpawnEnemy : MonoBehaviour
     private BoxCollider2D mainCameraCollider;
     [SerializeField] private Tilemap map;
     [SerializeField] private GameObject enemyPrefab;
-    [SerializeField] private float durationToSpawnS;
-    [SerializeField] private int maxEnemies;
-    private float timeAtLastSpawn;
-    private float currentTime;
+    [SerializeField] private int enemiesAtLevelOne;
+    [SerializeField] private int enemiesIncreasePerLevel;
+    [SerializeField] private GameObject levelDisplay;
+    [SerializeField] private int scorePerLevel;
+    [SerializeField] private Score playerScore;
+    [SerializeField] private PlayerHealth health;
     private GameObject Enemy;
-
     private int nonNullStart = -1;
-
     private int nonNullFinish = -1;
+    private int levelNumber; 
+    private System.Random random;
 
-    public List<int>[] tilesByX; 
+    private List<int>[] tilesByX; 
     // Know calc width of map not in camera
     void Awake()
     {
+        random = new System.Random();
         mainCameraCollider = GameObject.Find("MainCamera").GetComponent<BoxCollider2D>();
         tilesByX = convertCompositeColliderToRanges();
-        timeAtLastSpawn = Time.time;
+        levelNumber = 0;
+        startLevel();
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        currentTime = Time.time; 
-        if(currentTime - timeAtLastSpawn > durationToSpawnS && gameObject.transform.childCount < maxEnemies){
-            spawnEnemy();
-            timeAtLastSpawn = Time.time;
+        if (transform.childCount == 0){
+            startLevel();
         }
     }
 
+    private void startLevel(){
+        health.restoreHealthToFull();
+        playerScore.addScore(scorePerLevel*levelNumber);
+        levelNumber += 1;
+        levelDisplay.SetActive(true);
+        levelDisplay.GetComponent<UnityEngine.UI.Text>().text = "Level " + levelNumber;
+        for (int i = 0; i < enemiesAtLevelOne + enemiesIncreasePerLevel*levelNumber; i++){
+            spawnEnemy();
+        }
+        StartCoroutine("hideLevelText");
+    }
+
+    private IEnumerator hideLevelText(){
+        yield return new WaitForSeconds(4f);
+        levelDisplay.SetActive(false);
+    }
+
     private void spawnEnemy(){
-        // Enemies still sometimes spawn OOB IDK why, and at this point I'm just gonna blame unity and move on with my life
         Enemy = Instantiate(enemyPrefab, generateRandomSpawnPointOffScreen(), Quaternion.identity) as GameObject;
         Enemy.transform.parent = gameObject.transform;
     }
@@ -50,13 +69,14 @@ public class SpawnEnemy : MonoBehaviour
         int rightCameraBoxCellSpace = map.WorldToCell(new Vector2(mainCameraCollider.bounds.center.x + mainCameraCollider.bounds.extents.x,0.0f)).x;
         int cameraWidthCellSpace = rightCameraBoxCellSpace - leftCameraBoxCellSpace;
         int valueRange = spawnWidth - cameraWidthCellSpace;
-        System.Random random = new System.Random();
 
         List<int> validY = new List<int>();
         int randomCellX = -1;
 
         float cellWidth =  new Vector3(map.CellToWorld(new Vector3Int(nonNullStart, 0, 0)).x - map.CellToWorld(new Vector3Int(nonNullStart+1, 0, 0)).x, 0.0f, 0.0f).x;
-
+        if(random == null){
+            Debug.Log("?????");
+        }
         
         while (validY.Count == 0){
             randomCellX = random.Next(valueRange) + nonNullStart;

@@ -11,6 +11,7 @@ public class Gun : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask boundingBoxLayer;
     [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private AudioSource shotSound;
     private float timeAtLastFire;
     private float currentTime;
 
@@ -20,10 +21,15 @@ public class Gun : MonoBehaviour
     public void fire(Vector2 target){
         currentTime = Time.time; 
         if(currentTime - timeAtLastFire > durationToFireS){
-            GameObject bulletInstance = Instantiate(bulletPrefab, GetComponent<Transform>().position, Quaternion.identity) as GameObject;
+            Vector2 direction = (Vector2) Vector3.Normalize(target-(Vector2) GetComponent<Transform>().position);
+            Quaternion lookRotation = Quaternion.AngleAxis(Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg, Vector3.forward);
+
+            GameObject bulletInstance = Instantiate(bulletPrefab, GetComponent<Transform>().position, lookRotation) as GameObject;
             bulletInstance.GetComponent<Bullet>().setValues(damage, targetLayer, groundLayer, boundingBoxLayer);
             bulletInstance.GetComponent<Rigidbody2D>().velocity = bulletSpeed * (Vector2) Vector3.Normalize(target-(Vector2) GetComponent<Transform>().position);  
             timeAtLastFire = currentTime;
+            if (shotSound != null)
+                shotSound.Play();
         }
     }
 
