@@ -12,7 +12,6 @@ public class Score : MonoBehaviour
         cheats = false;
     }
     public void addScore(int value){
-        Debug.Log(cheats);
         if (!cheats){
             score += value;
             scoreDisplayUpdate();

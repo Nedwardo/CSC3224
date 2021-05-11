@@ -106,7 +106,6 @@ public class PlayerInput : MonoBehaviour
     private void FixedUpdate()
     {
         SlopeCheck();
-        SlopeCheck();
         move(horizontalMove * Time.fixedDeltaTime, jump);
         jump = false;
     }

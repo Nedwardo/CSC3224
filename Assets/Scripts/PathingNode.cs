@@ -79,7 +79,6 @@ public class PathingNode
             while (floorOnIndex+1 < floors.Length && floors[floorOnIndex+1].getHeight() < start.position.y){
                 floorOnIndex++;
             }
-            Debug.Log("Player on floor = " + floorOnIndex);
             PathingNode pathToDest;
             Transform lastDest = start;
             Transform currentDest;
